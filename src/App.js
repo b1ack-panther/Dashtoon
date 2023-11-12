@@ -1,13 +1,17 @@
-import { useState } from "react";
+import html2canvas from "html2canvas";
+import React, { useState, useRef } from "react";
 import "./App.css";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { Add, Share } from "@mui/icons-material";
+import { AddBox, Share } from "@mui/icons-material";
 
 function App() {
 	const [images, setImages] = useState([]);
-	const [mainImg, setMainImg] = useState(null);
+	const [mainImg, setMainImg] = useState();
+	const [panel, setPanel] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [promt, setPromt] = useState("");
+	const [horizontal, setHorizontal] = useState(50);
+	const [vertical, setVertical] = useState(50);
 
 	async function query(data) {
 		try {
@@ -35,22 +39,48 @@ function App() {
 	}
 
 	const generate_img = () => {
-		query({ inputs: promt }).then((response) => {
-			const imageUrl = URL.createObjectURL(response);
-			setMainImg(imageUrl);
-			console.log(imageUrl);
-		});
-	};
-	const handleMainImg = () => {
-		setImages((prev) => [...prev, mainImg]);
+		for (let i = 0; i < 10; i++) {
+			if (i == 0) {
+				setImages([]);
+			}
+			query({ inputs: promt }).then((response) => {
+				const imageUrl = URL.createObjectURL(response);
+				setImages((prev) => [...prev, imageUrl]);
+				console.log(imageUrl);
+			});
+		}
 	};
 
-	
 	const handleEnterKeyPress = (e) => {
-		if (e.key === 'Enter') {
+		if (e.key === "Enter") {
 			generate_img();
 		}
-	}
+	};
+
+	const handleImgClick = (index) => {
+		setMainImg(images[index]);
+	};
+
+	const handleAdd = () => {
+		setPanel((prev) => [...prev, mainImg]);
+	};
+
+	const parentDivRef = useRef();
+
+	const handleDownloadClick = async () => {
+		const parentDiv = parentDivRef.current;
+
+		try {
+			const canvas = await html2canvas(parentDiv);
+			const dataUrl = canvas.toDataURL("image/png");
+			const downloadLink = document.createElement("a");
+			downloadLink.href = dataUrl;
+			downloadLink.download = "downloaded_image.png";
+			downloadLink.click();
+		} catch (error) {
+			console.error("Error capturing content:", error);
+		}
+	};
 
 	return (
 		<div className="app">
@@ -68,30 +98,74 @@ function App() {
 						className="promt_input"
 						onChange={(e) => setPromt(e.target.value)}
 						type="text"
-						placeholder="Enter Promt"
+						placeholder="Enter Prompt"
 					/>
 					<div className="buttons">
 						<button className="generate_btn" onClick={generate_img}>
 							Generate <CheckCircleIcon />
 						</button>
-						<button onClick={handleMainImg} className="reset_btn">
-							Add <Add />
-						</button>
-						<button className="share">Share<Share/> </button>
 					</div>
-					{isLoading ? (
-						<div className="isLoading">
-							<p>Loading...</p>
-							<p>Please wait till your Image is ready</p>
-						</div>
-					) : (
-						<img className="main" src={mainImg} alt="" />
-					)}
+					{/* <div className="horizontal">
+						<label htmlFor="horizontal">Horizontal: {horizontal}</label>
+						<input
+							type="range"
+							value={horizontal}
+							min={0}
+							max={100}
+							onChange={(e) => setHorizontal(e.target.value)}
+						/>
+					</div>
+					<div className="vertical">
+						<label htmlFor="vertical">Vertical: {vertical}</label>
+						<input
+							type="range"
+							value={vertical}
+							min={0}
+							max={100}
+							onChange={(e) => setVertical(e.target.value)}
+						/>
+					</div> */}
+
+					<p className="styletext">Options</p>
+					<div className="option">
+						{isLoading ? (
+							<div className="isLoading">
+								<p>Loading...</p>
+								<p>Please wait till images are ready</p>
+							</div>
+						) : (
+							images.map((image, index) => (
+								<img
+									key={index}
+									onClick={() => handleImgClick(index)}
+									src={image}
+									alt="no image found"
+								/>
+							))
+						)}
+					</div>
 				</div>
 				<div className="right">
-					<h2>Your Comic</h2>
-					{images.map((image, index) => (
-						<img key={index} src={image} alt="no image found" />
+					<div className="rheader">
+						<h2>Panel</h2>
+						<button className="add" onClick={handleAdd}>
+							Add
+							<AddBox />
+						</button>
+					</div>
+					<img src={mainImg} alt="" />
+				</div>
+			</div>
+			<div className="panel">
+				<div className="panel_header">
+					<h2>Your comic</h2>
+					<button className="download" onClick={handleDownloadClick}>
+						Share <Share/>
+					</button>
+				</div>
+				<div className="parentDiv" ref={parentDivRef}>
+					{panel.map((image, index) => (
+						<img src={image} key={index} alt="" />
 					))}
 				</div>
 			</div>
