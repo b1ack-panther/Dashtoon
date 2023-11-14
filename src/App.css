@@ -60,7 +60,7 @@
 }
 
 .left {
-	flex: 1 1 200px;
+	flex: 0.8 0.8 200px;
 	height: auto;
 	padding: 10px;
 	border-radius: 5px;
@@ -69,8 +69,8 @@
 
 .right {
 	position: relative;
-	flex: 1 1 300px;
-	height: 550px;
+	flex: 1.2 1.2 300px;
+	height: auto;
 	background-color: white;
 	border-radius: 5px;
 	width: 100%;
@@ -86,6 +86,7 @@
 	width: auto;
 	gap: 5px 5px;
 	padding: 5px;
+	margin-bottom: 5px;
 }
 
 .option > img {
@@ -104,23 +105,14 @@
 }
 
 .rheader,
-.panel_header {
+.comic_header {
+	color: var(--btn_color);
 	display: flex;
+	align-items: center;
 	justify-content: space-between;
 	padding-left: 10px;
-	margin-top: -5px;
+	background-color: var(--bg_color);
 	padding-bottom: 5px;
-	background-color: var(--bg_color);
-}
-
-.rheader > h2,
-.panel_header > h2 {
-	padding: 3px;
-	padding-top: 0;
-	top: 0px;
-	color: var(--btn_color);
-	background-color: var(--bg_color);
-	position: sticky;
 }
 
 .styletext {
@@ -166,6 +158,26 @@ button:hover {
 	background-color: #4f21b3;
 }
 
+.editBubble{
+	border: 2px solid var(--btn_color);
+	border-radius: 5px;
+	padding: 5px;
+}
+
+.editBubble>label{
+	color: var(--btn_color);
+	margin-left: 5px;
+}
+.editBubble > label >input{
+	margin-right: 3px;
+}
+
+.editBubble > label >button{
+	padding: 5px;
+}
+
+
+
 .isLoading {
 	margin: 10px 0;
 }
@@ -183,20 +195,9 @@ button:hover {
 	box-shadow: inset 0 0 10px rgb(0, 0, 0);
 }
 
-.horizontal > input,
-.vertical > input {
-	display: block;
-	width: 300px;
-	height: 5px;
-	background-color: var(--bg_color);
-	margin-top: 3px;
-	margin-bottom: 15px;
-}
-
-.horizontal > input::-webkit-slider-thumb,
-.vertical > input::-webkit-slider-thumb {
-	background: var(--btn_color);
-	cursor: pointer;
+.horizontal > button, .vertical > button{
+	display: inline-block;
+	margin: 5px;
 }
 
 .bubble {
@@ -207,7 +208,7 @@ button:hover {
 	z-index: 2;
 }
 
-.right > img {
+.mainParent > img {
 	width: 100%;
 	max-height: 512px;
 	margin: auto;
@@ -216,23 +217,18 @@ button:hover {
 	object-fit: contain;
 }
 
-.panel {
-	position: relative;
+.comic {
 	margin: 10px auto;
 	width: min(550px, 96vw);
-	height: 80vh;
-	background-color: var(--bg_color);
+	height: 90vh;
+	background-color: white;
 	display: flex;
 	flex-direction: column;
 	gap: 5px;
-	overflow-x: auto;
 }
 
-.panel_header {
-	position: sticky;
-	top: -0.5px;
-	padding-top: 10px;
-	background-color: var(--bg_color);
+.parentDiv{
+	overflow-y: auto;
 }
 
 .parentDiv>img{

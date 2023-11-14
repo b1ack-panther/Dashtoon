@@ -2,16 +2,52 @@ import html2canvas from "html2canvas";
 import React, { useState, useRef } from "react";
 import "./App.css";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { AddBox, Share } from "@mui/icons-material";
+import {
+	AddBox,
+	ArrowBack,
+	ArrowDownward,
+	ArrowForward,
+	ArrowLeft,
+	ArrowRight,
+	ArrowUpward,
+	ForkLeftRounded,
+	Share,
+} from "@mui/icons-material";
 
 function App() {
-	const [images, setImages] = useState([]);
+	const [images, setImages] = useState(["./demo.jpg"]);
 	const [mainImg, setMainImg] = useState();
 	const [panel, setPanel] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [promt, setPromt] = useState("");
-	const [horizontal, setHorizontal] = useState(50);
-	const [vertical, setVertical] = useState(50);
+	const [bubblePosition, setBubblePosition] = useState({
+		top: "0%",
+		left: "0%",
+	});
+	const [isBubbleVisible, setIsBubbleVisible] = useState(false);
+
+	const moveBubble = (direction) => {
+		const increment = 10;
+		let { top, left } = bubblePosition;
+
+		switch (direction) {
+			case "up":
+				top = `${parseFloat(top) - increment}px`;
+				break;
+			case "down":
+				top = `${parseFloat(top) + increment}px`;
+				break;
+			case "left":
+				left = `${parseFloat(left) - increment}px`;
+				break;
+			case "right":
+				left = `${parseFloat(left) + increment}px`;
+				break;
+			default:
+				break;
+		}
+		setBubblePosition({ top, left });
+	};
 
 	async function query(data) {
 		try {
@@ -44,9 +80,9 @@ function App() {
 				setImages([]);
 			}
 			query({ inputs: promt }).then((response) => {
+				console.log(imageUrl);
 				const imageUrl = URL.createObjectURL(response);
 				setImages((prev) => [...prev, imageUrl]);
-				console.log(imageUrl);
 			});
 		}
 	};
@@ -61,15 +97,21 @@ function App() {
 		setMainImg(images[index]);
 	};
 
-	const handleAdd = () => {
-		setPanel((prev) => [...prev, mainImg]);
-	};
-
 	const parentDivRef = useRef();
+	const mainParentRef = useRef();
+
+	const handleAdd = async () => {
+		const parentDiv = mainParentRef.current;
+		// console.log(parentDiv);
+
+		const canvas = await html2canvas(parentDiv);
+		const dataUrl = canvas.toDataURL("image/png");
+		setPanel((prev) => [...prev, dataUrl]);
+	};
 
 	const handleDownloadClick = async () => {
 		const parentDiv = parentDivRef.current;
-
+		// console.log(parentDiv);
 		try {
 			const canvas = await html2canvas(parentDiv);
 			const dataUrl = canvas.toDataURL("image/png");
@@ -80,6 +122,9 @@ function App() {
 		} catch (error) {
 			console.error("Error capturing content:", error);
 		}
+	};
+	const toggleBubbleVisibility = () => {
+		setIsBubbleVisible(!isBubbleVisible);
 	};
 
 	return (
@@ -105,26 +150,6 @@ function App() {
 							Generate <CheckCircleIcon />
 						</button>
 					</div>
-					{/* <div className="horizontal">
-						<label htmlFor="horizontal">Horizontal: {horizontal}</label>
-						<input
-							type="range"
-							value={horizontal}
-							min={0}
-							max={100}
-							onChange={(e) => setHorizontal(e.target.value)}
-						/>
-					</div>
-					<div className="vertical">
-						<label htmlFor="vertical">Vertical: {vertical}</label>
-						<input
-							type="range"
-							value={vertical}
-							min={0}
-							max={100}
-							onChange={(e) => setVertical(e.target.value)}
-						/>
-					</div> */}
 
 					<p className="styletext">Options</p>
 					<div className="option">
@@ -144,6 +169,34 @@ function App() {
 							))
 						)}
 					</div>
+					<div className="editBubble">
+						<label>
+							<input
+								type="checkbox"
+								checked={isBubbleVisible}
+								onChange={toggleBubbleVisibility}
+							/>
+							Show/Hide Bubble
+						</label>
+						<div className="horizontal">
+							<button onClick={() => moveBubble("left")}>
+								{" "}
+								<ArrowBack />{" "}
+							</button>
+							<button onClick={() => moveBubble("right")}>
+								<ArrowForward />
+							</button>
+						</div>
+						<div className="vertical">
+							{" "}
+							<button onClick={() => moveBubble("up")}>
+								<ArrowUpward />
+							</button>
+							<button onClick={() => moveBubble("down")}>
+								<ArrowDownward />
+							</button>
+						</div>
+					</div>
 				</div>
 				<div className="right">
 					<div className="rheader">
@@ -153,14 +206,34 @@ function App() {
 							<AddBox />
 						</button>
 					</div>
-					<img src={mainImg} alt="" />
+					<div
+						className="mainParent"
+						ref={mainParentRef}
+						style={{ position: "relative" }}
+					>
+						<img src={mainImg} alt="" />
+						{isBubbleVisible && (
+							<img
+								src="./bubble.png"
+								alt="Speech Bubble"
+								className="speechBubble"
+								style={{
+									position: "absolute",
+									top: bubblePosition.top,
+									left: bubblePosition.left,
+									transform: " scale(0.3)",
+									transition: "0.3s ease",
+								}}
+							/>
+						)}
+					</div>
 				</div>
 			</div>
-			<div className="panel">
-				<div className="panel_header">
+			<div className="comic">
+				<div className="comic_header">
 					<h2>Your comic</h2>
 					<button className="download" onClick={handleDownloadClick}>
-						Share <Share/>
+						Share <Share />
 					</button>
 				</div>
 				<div className="parentDiv" ref={parentDivRef}>
