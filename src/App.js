@@ -80,7 +80,6 @@ function App() {
 				setImages([]);
 			}
 			query({ inputs: promt }).then((response) => {
-				console.log(imageUrl);
 				const imageUrl = URL.createObjectURL(response);
 				setImages((prev) => [...prev, imageUrl]);
 			});
